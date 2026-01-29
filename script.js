@@ -1,0 +1,227 @@
+const API = "http://localhost:3000/api";
+let token = localStorage.getItem("token") || "";
+let currentUser = null;
+
+window.onload = function() {
+  if (token) {
+    checkAuth();
+  }
+};
+
+function showLogin(e) {
+  if (e) e.preventDefault();
+  document.getElementById("loginForm").style.display = "block";
+  document.getElementById("registerForm").style.display = "none";
+  document.getElementById("loginTab").classList.add("active");
+  document.getElementById("registerTab").classList.remove("active");
+  clearAuthMessage();
+}
+
+function showRegister(e) {
+  if (e) e.preventDefault();
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("registerForm").style.display = "block";
+  document.getElementById("loginTab").classList.remove("active");
+  document.getElementById("registerTab").classList.add("active");
+  clearAuthMessage();
+}
+
+function clearAuthMessage() {
+  document.getElementById("authMessage").innerText = "";
+  document.getElementById("authMessage").className = "mt-3 text-center";
+}
+
+function showAuthMessage(message, isError = false) {
+  const msgEl = document.getElementById("authMessage");
+  msgEl.innerText = message;
+  msgEl.className = `mt-3 text-center ${isError ? "text-danger" : "text-success"}`;
+}
+
+async function register() {
+  const username = document.getElementById("registerUsername").value.trim();
+  const email = document.getElementById("registerEmail").value.trim();
+  const password = document.getElementById("registerPassword").value;
+
+  if (!username || !email || !password) {
+    showAuthMessage("All fields are required", true);
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, email, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      showAuthMessage("Registration successful! Please login.", false);
+      document.getElementById("registerUsername").value = "";
+      document.getElementById("registerEmail").value = "";
+      document.getElementById("registerPassword").value = "";
+      setTimeout(() => showLogin(), 1500);
+    } else {
+      showAuthMessage(data.message || "Registration failed", true);
+    }
+  } catch (error) {
+    showAuthMessage("Network error. Please try again.", true);
+  }
+}
+
+async function login() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  if (!email || !password) {
+    showAuthMessage("Email and password are required", true);
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.token) {
+      token = data.token;
+      currentUser = data.user;
+      localStorage.setItem("token", token);
+      showTasksSection();
+      loadTasks();
+    } else {
+      showAuthMessage(data.message || "Login failed", true);
+    }
+  } catch (error) {
+    showAuthMessage("Network error. Please try again.", true);
+  }
+}
+
+async function checkAuth() {
+  try {
+    const res = await fetch(`${API}/users/profile`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (res.ok) {
+      currentUser = await res.json();
+      showTasksSection();
+      loadTasks();
+    } else {
+      logout();
+    }
+  } catch (error) {
+    logout();
+  }
+}
+
+function showTasksSection() {
+  document.getElementById("authSection").style.display = "none";
+  document.getElementById("tasksSection").style.display = "block";
+  document.getElementById("userName").innerText = currentUser?.username || "User";
+  document.getElementById("loginEmail").value = "";
+  document.getElementById("loginPassword").value = "";
+}
+
+function logout() {
+  token = "";
+  currentUser = null;
+  localStorage.removeItem("token");
+  document.getElementById("authSection").style.display = "block";
+  document.getElementById("tasksSection").style.display = "none";
+  document.getElementById("taskList").innerHTML = "";
+  showLogin();
+}
+
+async function createTask() {
+  const title = document.getElementById("taskTitle").value.trim();
+
+  if (!title) {
+    alert("Please enter a task title");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/tasks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({ title })
+    });
+
+    if (res.ok) {
+      document.getElementById("taskTitle").value = "";
+      loadTasks();
+    } else {
+      alert("Failed to create task");
+    }
+  } catch (error) {
+    alert("Network error");
+  }
+}
+
+async function loadTasks() {
+  try {
+    const res = await fetch(`${API}/tasks`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        logout();
+      }
+      return;
+    }
+
+    const tasks = await res.json();
+    const list = document.getElementById("taskList");
+    const emptyMsg = document.getElementById("emptyMessage");
+
+    list.innerHTML = "";
+
+    if (tasks.length === 0) {
+      emptyMsg.style.display = "block";
+    } else {
+      emptyMsg.style.display = "none";
+      tasks.forEach(task => {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.innerHTML = `
+          <span>${task.title}</span>
+          <button class="btn btn-sm btn-danger" onclick="deleteTask('${task._id}')">Delete</button>
+        `;
+        list.appendChild(li);
+      });
+    }
+  } catch (error) {
+    console.error("Failed to load tasks", error);
+  }
+}
+
+async function deleteTask(id) {
+  if (!confirm("Are you sure you want to delete this task?")) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/tasks/${id}`, {
+      method: "DELETE",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (res.ok) {
+      loadTasks();
+    } else {
+      alert("Failed to delete task");
+    }
+  } catch (error) {
+    alert("Network error");
+  }
+}

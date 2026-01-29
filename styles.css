@@ -1,0 +1,43 @@
+body {
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-tabs .nav-link {
+  cursor: pointer;
+  color: #666;
+}
+
+.nav-tabs .nav-link.active {
+  font-weight: bold;
+}
+
+#taskList {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+#taskList:empty {
+  display: none;
+}
+
+.list-group-item {
+  transition: background-color 0.2s;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+.input-group input {
+  border-right: none;
+}
+
+.input-group button {
+  border-left: none;
+}
