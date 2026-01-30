@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+const sendEmail = require("../utils/sendEmail");
 
 exports.register = async (req, res, next) => {
   try {
@@ -19,8 +19,17 @@ exports.register = async (req, res, next) => {
     const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({ username, email, password: hashed });
 
+    sendEmail(
+      email,
+      "Account Successfully Created",
+      `Hello ${username},\n\nYour account has been successfully created!\n\nWelcome to TaskManager.`
+    ).catch(emailError => {
+      console.error("Failed to send email:", emailError.message);
+    });
+
     res.status(201).json({ message: "Registered", user: { id: user._id, username: user.username, email: user.email } });
   } catch (error) {
+    console.error("Registration error:", error.message);
     next(error);
   }
 };
