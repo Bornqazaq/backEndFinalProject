@@ -124,8 +124,13 @@ function showTasksSection() {
   document.getElementById("authSection").style.display = "none";
   document.getElementById("tasksSection").style.display = "block";
   document.getElementById("userName").innerText = currentUser?.username || "User";
+  document.getElementById("userRole").innerText = `Role: ${currentUser?.role || "user"}`;
   document.getElementById("loginEmail").value = "";
   document.getElementById("loginPassword").value = "";
+  
+  if (currentUser?.role === "admin") {
+    document.getElementById("adminPanel").style.display = "block";
+  }
 }
 
 function logout() {
@@ -223,5 +228,88 @@ async function deleteTask(id) {
     }
   } catch (error) {
     alert("Network error");
+  }
+}
+
+function showMyTasks() {
+  document.getElementById("taskSectionTitle").innerText = "My Tasks";
+  loadTasks();
+}
+
+async function showAllTasks() {
+  document.getElementById("taskSectionTitle").innerText = "All Tasks (Admin View)";
+  
+  try {
+    const res = await fetch(`${API}/tasks/all`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+      alert("Access denied or error loading all tasks");
+      return;
+    }
+
+    const tasks = await res.json();
+    const list = document.getElementById("taskList");
+    const emptyMsg = document.getElementById("emptyMessage");
+
+    list.innerHTML = "";
+
+    if (tasks.length === 0) {
+      emptyMsg.style.display = "block";
+      emptyMsg.innerText = "No tasks in the system";
+    } else {
+      emptyMsg.style.display = "none";
+      tasks.forEach(task => {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.innerHTML = `
+          <div>
+            <strong>${task.title}</strong>
+            <br><small class="text-muted">User: ${task.user?.username || "Unknown"} (${task.user?.email || ""})</small>
+          </div>
+          <button class="btn btn-sm btn-danger" onclick="deleteTask('${task._id}')">Delete</button>
+        `;
+        list.appendChild(li);
+      });
+    }
+  } catch (error) {
+    console.error("Failed to load all tasks", error);
+    alert("Failed to load all tasks");
+  }
+}
+
+async function showAllUsers() {
+  try {
+    const res = await fetch(`${API}/users`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+      alert("Access denied or error loading users");
+      return;
+    }
+
+    const users = await res.json();
+    const adminContent = document.getElementById("adminContent");
+
+    adminContent.innerHTML = `
+      <h5>All Users (${users.length})</h5>
+      <div class="list-group">
+        ${users.map(user => `
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong>${user.username}</strong> - ${user.email}
+                <br><span class="badge bg-${user.role === 'admin' ? 'danger' : 'primary'}">${user.role}</span>
+              </div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  } catch (error) {
+    console.error("Failed to load users", error);
+    alert("Failed to load users");
   }
 }
