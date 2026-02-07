@@ -145,10 +145,16 @@ function logout() {
 
 async function createTask() {
   const title = document.getElementById("taskTitle").value.trim();
+  const dueDate = document.getElementById("taskDueDate").value;
 
   if (!title) {
     alert("Please enter a task title");
     return;
+  }
+
+  const taskData = { title };
+  if (dueDate) {
+    taskData.dueDate = dueDate;
   }
 
   try {
@@ -158,11 +164,12 @@ async function createTask() {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({ title })
+      body: JSON.stringify(taskData)
     });
 
     if (res.ok) {
       document.getElementById("taskTitle").value = "";
+      document.getElementById("taskDueDate").value = "";
       loadTasks();
     } else {
       alert("Failed to create task");
@@ -198,8 +205,28 @@ async function loadTasks() {
       tasks.forEach(task => {
         const li = document.createElement("li");
         li.className = "list-group-item d-flex justify-content-between align-items-center";
+        
+        const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        let dueDateHTML = '';
+        if (dueDate) {
+          dueDate.setHours(0, 0, 0, 0);
+          const isOverdue = dueDate < today && !task.status;
+          const dueDateStr = dueDate.toLocaleDateString('ru-RU');
+          dueDateHTML = `<small class="${isOverdue ? 'text-danger' : 'text-muted'} ms-2">
+            ${isOverdue ? '⚠️ ' : '📅 '}${dueDateStr}
+          </small>`;
+        }
+        
         li.innerHTML = `
-          <span>${task.title}</span>
+          <div class="d-flex align-items-center gap-2">
+            <input type="checkbox" class="form-check-input" ${task.status ? 'checked' : ''} 
+                   onchange="toggleTaskStatus('${task._id}')" style="cursor: pointer;">
+            <span class="${task.status ? 'text-decoration-line-through text-muted' : ''}">${task.title}</span>
+            ${dueDateHTML}
+          </div>
           <button class="btn btn-sm btn-danger" onclick="deleteTask('${task._id}')">Delete</button>
         `;
         list.appendChild(li);
@@ -207,6 +234,23 @@ async function loadTasks() {
     }
   } catch (error) {
     console.error("Failed to load tasks", error);
+  }
+}
+
+async function toggleTaskStatus(id) {
+  try {
+    const res = await fetch(`${API}/tasks/${id}/toggle-status`, {
+      method: "PATCH",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (res.ok) {
+      loadTasks();
+    } else {
+      alert("Failed to update task status");
+    }
+  } catch (error) {
+    alert("Network error");
   }
 }
 
@@ -263,10 +307,26 @@ async function showAllTasks() {
       tasks.forEach(task => {
         const li = document.createElement("li");
         li.className = "list-group-item d-flex justify-content-between align-items-center";
+        
+        const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        let dueDateHTML = '';
+        if (dueDate) {
+          dueDate.setHours(0, 0, 0, 0);
+          const isOverdue = dueDate < today && !task.status;
+          const dueDateStr = dueDate.toLocaleDateString('ru-RU');
+          dueDateHTML = ` | Due: <span class="${isOverdue ? 'text-danger' : ''}">${dueDateStr}</span>`;
+        }
+        
         li.innerHTML = `
           <div>
-            <strong>${task.title}</strong>
-            <br><small class="text-muted">User: ${task.user?.username || "Unknown"} (${task.user?.email || ""})</small>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-${task.status ? 'success' : 'secondary'}">${task.status ? 'Completed' : 'Incomplete'}</span>
+              <strong class="${task.status ? 'text-decoration-line-through text-muted' : ''}">${task.title}</strong>
+            </div>
+            <small class="text-muted">User: ${task.user?.username || "Unknown"} (${task.user?.email || ""})${dueDateHTML}</small>
           </div>
           <button class="btn btn-sm btn-danger" onclick="deleteTask('${task._id}')">Delete</button>
         `;

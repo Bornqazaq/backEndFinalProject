@@ -10,6 +10,7 @@ router.get("/", auth, controller.getTasks);
 router.get("/all", auth, role("admin"), controller.getAllTasks);
 router.get("/:id", auth, controller.getTask);
 router.put("/:id", auth, controller.updateTask);
+router.patch("/:id/toggle-status", auth, controller.toggleTaskStatus);
 router.delete("/:id", auth, controller.deleteTask);
 
 module.exports = router;

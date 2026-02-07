@@ -61,9 +61,13 @@
 
       <div class="card p-4">
         <h4 class="mb-3" id="taskSectionTitle">My Tasks</h4>
-        <div class="input-group mb-3">
-          <input id="taskTitle" class="form-control" placeholder="Enter task title" />
-          <button class="btn btn-dark" onclick="createTask()">Add Task</button>
+        <div class="mb-3">
+          <input id="taskTitle" class="form-control mb-2" placeholder="Enter task title" />
+          <div class="input-group">
+            <input id="taskDueDate" type="date" class="form-control" />
+            <button class="btn btn-dark" onclick="createTask()">Add Task</button>
+          </div>
+          <small class="text-muted">Optional: Select a due date for the task</small>
         </div>
         <ul id="taskList" class="list-group"></ul>
         <p id="emptyMessage" class="text-center text-muted mt-3" style="display: none;">No tasks yet. Add your first task!</p>

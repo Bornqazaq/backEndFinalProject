@@ -96,3 +96,27 @@ exports.deleteTask = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.toggleTaskStatus = async (req, res, next) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    
+    if (task.user.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+    
+    task.status = !task.status;
+    await task.save();
+    
+    res.json({ 
+      message: `Task marked as ${task.status ? 'completed' : 'incomplete'}`,
+      task 
+    });
+  } catch (error) {
+    next(error);
+  }
+};

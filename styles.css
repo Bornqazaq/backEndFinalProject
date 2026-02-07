@@ -41,3 +41,13 @@ body {
 .input-group button {
   border-left: none;
 }
+
+.form-check-input {
+  width: 1.2em;
+  height: 1.2em;
+  margin-top: 0;
+}
+
+.gap-2 {
+  gap: 0.5rem !important;
+}
