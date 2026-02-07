@@ -2,10 +2,11 @@ const express = require("express");
 const auth = require("../middleware/authMiddleware");
 const role = require("../middleware/roleMiddleware");
 const controller = require("../controllers/taskController");
+const upload = require("../config/multer");
 
 const router = express.Router();
 
-router.post("/", auth, controller.createTask);
+router.post("/", auth, upload.single("image"), controller.createTask);
 router.get("/", auth, controller.getTasks);
 router.get("/all", auth, role("admin"), controller.getAllTasks);
 router.get("/:id", auth, controller.getTask);

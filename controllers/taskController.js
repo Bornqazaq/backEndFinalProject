@@ -1,4 +1,6 @@
 const Task = require("../models/Task");
+const fs = require("fs");
+const path = require("path");
 
 exports.createTask = async (req, res, next) => {
   try {
@@ -8,7 +10,13 @@ exports.createTask = async (req, res, next) => {
       return res.status(400).json({ message: "Title is required" });
     }
     
-    const task = await Task.create({ ...req.body, user: req.user.id });
+    const taskData = { ...req.body, user: req.user.id };
+    
+    if (req.file) {
+      taskData.image = `/uploads/${req.file.filename}`;
+    }
+    
+    const task = await Task.create(taskData);
     res.status(201).json(task);
   } catch (error) {
     next(error);
@@ -88,6 +96,13 @@ exports.deleteTask = async (req, res, next) => {
     
     if (task.user.toString() !== req.user.id && req.user.role !== "admin") {
       return res.status(403).json({ message: "Access denied" });
+    }
+    
+    if (task.image) {
+      const imagePath = path.join(__dirname, "..", task.image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
     }
     
     await Task.findByIdAndDelete(req.params.id);

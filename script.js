@@ -146,33 +146,41 @@ function logout() {
 async function createTask() {
   const title = document.getElementById("taskTitle").value.trim();
   const dueDate = document.getElementById("taskDueDate").value;
+  const imageFile = document.getElementById("taskImage").files[0];
 
   if (!title) {
     alert("Please enter a task title");
     return;
   }
 
-  const taskData = { title };
-  if (dueDate) {
-    taskData.dueDate = dueDate;
-  }
-
   try {
+    const formData = new FormData();
+    formData.append("title", title);
+    
+    if (dueDate) {
+      formData.append("dueDate", dueDate);
+    }
+    
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
     const res = await fetch(`${API}/tasks`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify(taskData)
+      body: formData
     });
 
     if (res.ok) {
       document.getElementById("taskTitle").value = "";
       document.getElementById("taskDueDate").value = "";
+      document.getElementById("taskImage").value = "";
       loadTasks();
     } else {
-      alert("Failed to create task");
+      const data = await res.json();
+      alert(data.message || "Failed to create task");
     }
   } catch (error) {
     alert("Network error");
@@ -204,7 +212,7 @@ async function loadTasks() {
       emptyMsg.style.display = "none";
       tasks.forEach(task => {
         const li = document.createElement("li");
-        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.className = "list-group-item";
         
         const dueDate = task.dueDate ? new Date(task.dueDate) : null;
         const today = new Date();
@@ -220,14 +228,25 @@ async function loadTasks() {
           </small>`;
         }
         
+        let imageHTML = '';
+        if (task.image) {
+          imageHTML = `<img src="${task.image}" alt="Task image" class="task-image mt-2" 
+                       onclick="showImageModal('${task.image}')" style="cursor: pointer;">`;
+        }
+        
         li.innerHTML = `
-          <div class="d-flex align-items-center gap-2">
-            <input type="checkbox" class="form-check-input" ${task.status ? 'checked' : ''} 
-                   onchange="toggleTaskStatus('${task._id}')" style="cursor: pointer;">
-            <span class="${task.status ? 'text-decoration-line-through text-muted' : ''}">${task.title}</span>
-            ${dueDateHTML}
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="d-flex align-items-start gap-2 flex-grow-1">
+              <input type="checkbox" class="form-check-input mt-1" ${task.status ? 'checked' : ''} 
+                     onchange="toggleTaskStatus('${task._id}')" style="cursor: pointer;">
+              <div>
+                <span class="${task.status ? 'text-decoration-line-through text-muted' : ''}">${task.title}</span>
+                ${dueDateHTML}
+                ${imageHTML}
+              </div>
+            </div>
+            <button class="btn btn-sm btn-danger" onclick="deleteTask('${task._id}')">Delete</button>
           </div>
-          <button class="btn btn-sm btn-danger" onclick="deleteTask('${task._id}')">Delete</button>
         `;
         list.appendChild(li);
       });
@@ -320,6 +339,12 @@ async function showAllTasks() {
           dueDateHTML = ` | Due: <span class="${isOverdue ? 'text-danger' : ''}">${dueDateStr}</span>`;
         }
         
+        let imageHTML = '';
+        if (task.image) {
+          imageHTML = `<img src="${task.image}" alt="Task image" class="task-image mt-2" 
+                       onclick="showImageModal('${task.image}')" style="cursor: pointer;">`;
+        }
+        
         li.innerHTML = `
           <div>
             <div class="d-flex align-items-center gap-2">
@@ -327,6 +352,7 @@ async function showAllTasks() {
               <strong class="${task.status ? 'text-decoration-line-through text-muted' : ''}">${task.title}</strong>
             </div>
             <small class="text-muted">User: ${task.user?.username || "Unknown"} (${task.user?.email || ""})${dueDateHTML}</small>
+            ${imageHTML}
           </div>
           <button class="btn btn-sm btn-danger" onclick="deleteTask('${task._id}')">Delete</button>
         `;
@@ -372,4 +398,15 @@ async function showAllUsers() {
     console.error("Failed to load users", error);
     alert("Failed to load users");
   }
+}
+
+function showImageModal(imageSrc) {
+  const modal = document.getElementById("imageModal");
+  const modalImg = document.getElementById("modalImage");
+  modal.style.display = "flex";
+  modalImg.src = imageSrc;
+}
+
+function closeImageModal() {
+  document.getElementById("imageModal").style.display = "none";
 }

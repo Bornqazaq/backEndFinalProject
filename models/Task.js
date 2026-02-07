@@ -5,6 +5,7 @@ const taskSchema = new mongoose.Schema({
   description: String,
   status: { type: Boolean, default: false },
   dueDate: Date,
+  image: String,
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
 }, { timestamps: true });
 
