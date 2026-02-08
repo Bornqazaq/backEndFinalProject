@@ -6,6 +6,14 @@ exports.createTask = async (req, res, next) => {
   try {
     const taskData = { ...req.body, user: req.user.id };
     
+    if (taskData.title) {
+      taskData.title = taskData.title.trim();
+    }
+    
+    if (taskData.description) {
+      taskData.description = taskData.description.trim();
+    }
+    
     if (req.file) {
       taskData.image = `/uploads/${req.file.filename}`;
     }

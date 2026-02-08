@@ -14,9 +14,19 @@ exports.getProfile = async (req, res, next) => {
 
 exports.updateProfile = async (req, res, next) => {
   try {
+    const updateData = { ...req.body };
+    
+    if (updateData.username) {
+      updateData.username = updateData.username.trim();
+    }
+    
+    if (updateData.email) {
+      updateData.email = updateData.email.toLowerCase().trim();
+    }
+    
     const updated = await User.findByIdAndUpdate(
       req.user.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     ).select("-password");
     

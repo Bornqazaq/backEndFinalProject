@@ -4,21 +4,20 @@ const registerSchema = Joi.object({
   username: Joi.string()
     .min(3)
     .max(30)
-    .trim()
     .required()
     .messages({
       "string.min": "Username must be at least 3 characters",
       "string.max": "Username must not exceed 30 characters",
+      "string.empty": "Username is required",
       "any.required": "Username is required"
     }),
   
   email: Joi.string()
     .email()
-    .lowercase()
-    .trim()
     .required()
     .messages({
       "string.email": "Please enter a valid email address",
+      "string.empty": "Email is required",
       "any.required": "Email is required"
     }),
   
@@ -29,9 +28,10 @@ const registerSchema = Joi.object({
     .messages({
       "string.min": "Password must be at least 6 characters",
       "string.max": "Password must not exceed 50 characters",
+      "string.empty": "Password is required",
       "any.required": "Password is required"
     })
-});
+}).options({ stripUnknown: true });
 
 const loginSchema = Joi.object({
   email: Joi.string()
@@ -39,6 +39,7 @@ const loginSchema = Joi.object({
     .required()
     .messages({
       "string.email": "Please enter a valid email address",
+      "string.empty": "Email is required",
       "any.required": "Email is required"
     }),
   
@@ -47,9 +48,10 @@ const loginSchema = Joi.object({
     .required()
     .messages({
       "string.min": "Password must be at least 6 characters",
+      "string.empty": "Password is required",
       "any.required": "Password is required"
     })
-});
+}).options({ stripUnknown: true });
 
 module.exports = {
   registerSchema,

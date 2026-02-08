@@ -4,7 +4,6 @@ const updateProfileSchema = Joi.object({
   username: Joi.string()
     .min(3)
     .max(30)
-    .trim()
     .optional()
     .messages({
       "string.min": "Username must be at least 3 characters",
@@ -13,13 +12,11 @@ const updateProfileSchema = Joi.object({
   
   email: Joi.string()
     .email()
-    .lowercase()
-    .trim()
     .optional()
     .messages({
       "string.email": "Please enter a valid email address"
     })
-});
+}).options({ stripUnknown: true });
 
 const updateRoleSchema = Joi.object({
   userId: Joi.string()
@@ -35,7 +32,7 @@ const updateRoleSchema = Joi.object({
       "any.only": "Invalid role. Must be one of: user, admin, moderator, premium",
       "any.required": "Role is required"
     })
-});
+}).options({ stripUnknown: true });
 
 module.exports = {
   updateProfileSchema,

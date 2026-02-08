@@ -4,7 +4,6 @@ const createTaskSchema = Joi.object({
   title: Joi.string()
     .min(1)
     .max(200)
-    .trim()
     .required()
     .messages({
       "string.empty": "Title is required",
@@ -14,8 +13,7 @@ const createTaskSchema = Joi.object({
   
   description: Joi.string()
     .max(1000)
-    .trim()
-    .allow("")
+    .allow("", null)
     .optional()
     .messages({
       "string.max": "Description must not exceed 1000 characters"
@@ -30,13 +28,12 @@ const createTaskSchema = Joi.object({
   
   status: Joi.boolean()
     .optional()
-});
+}).options({ stripUnknown: true });
 
 const updateTaskSchema = Joi.object({
   title: Joi.string()
     .min(1)
     .max(200)
-    .trim()
     .optional()
     .messages({
       "string.max": "Title must not exceed 200 characters"
@@ -44,8 +41,7 @@ const updateTaskSchema = Joi.object({
   
   description: Joi.string()
     .max(1000)
-    .trim()
-    .allow("")
+    .allow("", null)
     .optional()
     .messages({
       "string.max": "Description must not exceed 1000 characters"
@@ -60,7 +56,7 @@ const updateTaskSchema = Joi.object({
   
   status: Joi.boolean()
     .optional()
-});
+}).options({ stripUnknown: true });
 
 module.exports = {
   createTaskSchema,
