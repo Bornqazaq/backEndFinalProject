@@ -1,4 +1,4 @@
-const API = "http://localhost:3000/api";
+const API = "https://taskmanager-30kd.onrender.com/api";
 let token = localStorage.getItem("token") || "";
 let currentUser = null;
 
