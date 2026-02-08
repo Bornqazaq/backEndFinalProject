@@ -19,6 +19,9 @@
     "url": "https://github.com/Bornqazaq/backEndFinalProject/issues"
   },
   "homepage": "https://github.com/Bornqazaq/backEndFinalProject#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.3.1",
