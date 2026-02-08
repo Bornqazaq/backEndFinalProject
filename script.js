@@ -296,6 +296,11 @@ async function loadTasks() {
                        onclick="showImageModal('${task.image}')" style="cursor: pointer;">`;
         }
         
+        let descriptionHTML = '';
+        if (task.description && task.description.trim()) {
+          descriptionHTML = `<div class="text-muted small mt-1">${task.description}</div>`;
+        }
+        
         li.innerHTML = `
           <div class="d-flex justify-content-between align-items-start">
             <div class="d-flex align-items-start gap-2 flex-grow-1">
@@ -304,6 +309,7 @@ async function loadTasks() {
               <div>
                 <span class="${task.status ? 'text-decoration-line-through text-muted' : ''}">${task.title}</span>
                 ${dueDateHTML}
+                ${descriptionHTML}
                 ${imageHTML}
               </div>
             </div>
@@ -407,6 +413,11 @@ async function showAllTasks() {
                        onclick="showImageModal('${task.image}')" style="cursor: pointer;">`;
         }
         
+        let descriptionHTML = '';
+        if (task.description && task.description.trim()) {
+          descriptionHTML = `<div class="text-muted small mt-1">${task.description}</div>`;
+        }
+        
         li.innerHTML = `
           <div>
             <div class="d-flex align-items-center gap-2">
@@ -414,6 +425,7 @@ async function showAllTasks() {
               <strong class="${task.status ? 'text-decoration-line-through text-muted' : ''}">${task.title}</strong>
             </div>
             <small class="text-muted">User: ${task.user?.username || "Unknown"} (${task.user?.email || ""})${dueDateHTML}</small>
+            ${descriptionHTML}
             ${imageHTML}
           </div>
           <button class="btn btn-sm btn-danger" onclick="deleteTask('${task._id}')">Delete</button>
