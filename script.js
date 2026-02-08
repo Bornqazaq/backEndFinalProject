@@ -47,6 +47,22 @@ async function register() {
     return;
   }
 
+  if (username.length < 3 || username.length > 30) {
+    showAuthMessage("Username must be between 3 and 30 characters", true);
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    showAuthMessage("Please enter a valid email address", true);
+    return;
+  }
+
+  if (password.length < 6 || password.length > 50) {
+    showAuthMessage("Password must be between 6 and 50 characters", true);
+    return;
+  }
+
   try {
     const res = await fetch(`${API}/auth/register`, {
       method: "POST",
@@ -76,6 +92,17 @@ async function login() {
 
   if (!email || !password) {
     showAuthMessage("Email and password are required", true);
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    showAuthMessage("Please enter a valid email address", true);
+    return;
+  }
+
+  if (password.length < 6) {
+    showAuthMessage("Password must be at least 6 characters", true);
     return;
   }
 
@@ -146,6 +173,7 @@ function logout() {
 async function createTask() {
   const title = document.getElementById("taskTitle").value.trim();
   const dueDate = document.getElementById("taskDueDate").value;
+  const description = document.getElementById("taskDescription").value.trim();
   const imageFile = document.getElementById("taskImage").files[0];
 
   if (!title) {
@@ -153,9 +181,36 @@ async function createTask() {
     return;
   }
 
+  if (title.length > 200) {
+    alert("Title must not exceed 200 characters");
+    return;
+  }
+
+  if (description && description.length > 1000) {
+    alert("Description must not exceed 1000 characters");
+    return;
+  }
+
+  if (imageFile) {
+    if (imageFile.size > 5 * 1024 * 1024) {
+      alert("Image size must not exceed 5MB");
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(imageFile.type)) {
+      alert("Only JPG, PNG, GIF, and WebP images are allowed");
+      return;
+    }
+  }
+
   try {
     const formData = new FormData();
     formData.append("title", title);
+    
+    if (description) {
+      formData.append("description", description);
+    }
     
     if (dueDate) {
       formData.append("dueDate", dueDate);
@@ -175,6 +230,7 @@ async function createTask() {
 
     if (res.ok) {
       document.getElementById("taskTitle").value = "";
+      document.getElementById("taskDescription").value = "";
       document.getElementById("taskDueDate").value = "";
       document.getElementById("taskImage").value = "";
       loadTasks();
