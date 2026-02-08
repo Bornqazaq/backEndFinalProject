@@ -40,17 +40,53 @@ https://taskmanager-30kd.onrender.com/
 
 ## Project Structure
 
+```
 backEndFinalProject/
 │
-├── config/ # Database and multer configuration
-├── controllers/ # Application logic
-├── middleware/ # Auth, role, and error middleware
-├── models/ # Mongoose models
-├── routes/ # API routes
-├── utils/ # Utility functions (email)
-├── app.js # Express app setup
-├── server.js # Server entry point
-└── package.json
+├── config/               # Database and multer configuration
+│   ├── db.js
+│   └── multer.js
+│
+├── controllers/          # Application logic
+│   ├── authController.js
+│   ├── taskController.js
+│   └── userController.js
+│
+├── middleware/           # Auth, role, and error middleware
+│   ├── authMiddleware.js
+│   ├── errorMiddleware.js
+│   ├── roleMiddleware.js
+│   └── validationMiddleware.js
+│
+├── models/               # Mongoose models
+│   ├── Task.js
+│   └── User.js
+│
+├── routes/               # API routes
+│   ├── authRoutes.js
+│   ├── taskRoutes.js
+│   └── userRoutes.js
+│
+├── screenshots/          # Project screenshots
+│
+├── uploads/              # Uploaded task images
+│
+├── utils/                # Utility functions (email)
+│   └── sendEmail.js
+│
+├── validators/           # Request validation schemas
+│   ├── authValidator.js
+│   ├── taskValidator.js
+│   └── userValidator.js
+│
+├── app.js                # Express app setup
+├── server.js             # Server entry point
+├── index.html            # Frontend interface
+├── script.js             # Frontend JavaScript
+├── styles.css            # Frontend styles
+├── package.json          # Dependencies and scripts
+└── README.md             # Project documentation
+```
 
 ---
 
