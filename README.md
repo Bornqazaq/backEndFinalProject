@@ -21,7 +21,7 @@ This is a **group project** developed by:
 
 ## Live Demo (Deployment)
 
-The project is deployed and доступен по ссылке:  
+The project is deployed and available by link:  
 https://taskmanager-30kd.onrender.com/
 
 ---
