@@ -100,3 +100,8 @@ body {
 .modal-close:focus {
   color: #bbb;
 }
+
+#taskStats .badge {
+  min-width: 40px;
+  padding: 8px 12px;
+}

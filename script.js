@@ -206,6 +206,12 @@ async function loadTasks() {
 
     list.innerHTML = "";
 
+    const completedTasks = tasks.filter(t => t.status).length;
+    const incompleteTasks = tasks.filter(t => !t.status).length;
+    
+    document.getElementById("completedCount").innerText = completedTasks;
+    document.getElementById("incompleteCount").innerText = incompleteTasks;
+
     if (tasks.length === 0) {
       emptyMsg.style.display = "block";
     } else {

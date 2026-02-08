@@ -60,7 +60,19 @@
       </div>
 
       <div class="card p-4">
-        <h4 class="mb-3" id="taskSectionTitle">My Tasks</h4>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0" id="taskSectionTitle">My Tasks</h4>
+          <div class="d-flex gap-3" id="taskStats">
+            <div class="text-center">
+              <div class="badge bg-success fs-6" id="completedCount">0</div>
+              <small class="d-block text-muted">Completed</small>
+            </div>
+            <div class="text-center">
+              <div class="badge bg-secondary fs-6" id="incompleteCount">0</div>
+              <small class="d-block text-muted">Incomplete</small>
+            </div>
+          </div>
+        </div>
         <div class="mb-3">
           <input id="taskTitle" class="form-control mb-2" placeholder="Enter task title" />
           <div class="input-group mb-2">
