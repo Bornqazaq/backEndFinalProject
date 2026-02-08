@@ -4,20 +4,6 @@ const path = require("path");
 
 exports.createTask = async (req, res, next) => {
   try {
-    const { title, description } = req.body;
-    
-    if (!title || title.trim().length === 0) {
-      return res.status(400).json({ message: "Title is required" });
-    }
-
-    if (title.trim().length > 200) {
-      return res.status(400).json({ message: "Title must not exceed 200 characters" });
-    }
-
-    if (description && description.length > 1000) {
-      return res.status(400).json({ message: "Description must not exceed 1000 characters" });
-    }
-    
     const taskData = { ...req.body, user: req.user.id };
     
     if (req.file) {

@@ -43,14 +43,6 @@ exports.updateUserRole = async (req, res, next) => {
   try {
     const { userId, role } = req.body;
     
-    if (!userId || !role) {
-      return res.status(400).json({ message: "UserId and role are required" });
-    }
-    
-    if (!["user", "admin", "moderator", "premium"].includes(role)) {
-      return res.status(400).json({ message: "Invalid role" });
-    }
-    
     const user = await User.findByIdAndUpdate(
       userId,
       { role },
@@ -62,6 +54,20 @@ exports.updateUserRole = async (req, res, next) => {
     }
     
     res.json({ message: "Role updated", user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteUser = async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    res.json({ message: "User deleted successfully" });
   } catch (error) {
     next(error);
   }
